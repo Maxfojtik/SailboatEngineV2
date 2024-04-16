@@ -15,9 +15,9 @@ PWM ch2(3);//ch2
 PWM ch1(4);//ch1
 PWM hall(0);//hall
 
-Servo tServo;
-Servo cServo;
-Servo sServo;
+Servo tServo;//180-50, 50 full
+Servo cServo;//180-90, 90 open
+Servo sServo;//70, 110, 170, backward, neutral, forward
 
 
 void setup() {
@@ -34,9 +34,6 @@ long ageTimer = 0;
 boolean blinkState = false;
 boolean disconnected = true;
 void loop() {
-  tServo.write(90);
-  cServo.write(90);
-  sServo.write(90);
   if(millis()-ageTimer > 250)
   {
     ageTimer = millis();
@@ -53,6 +50,9 @@ void loop() {
   }
   if(disconnected)
   {
+    tServo.write(180);//defaults
+    cServo.write(90);
+    sServo.write(110);
     if(blinkState)
     {
       leds[0] = CRGB::Red;
@@ -94,7 +94,11 @@ void loop() {
       ch3Val = PWM_MIN_VALUE;
     }
     byte ch3b = map(ch3Val, PWM_MIN_VALUE, PWM_MAX_VALUE, 0, 255);
-    leds[0] = CRGB(ch1b/4, ch2b/4, ch3b/4);
+    leds[0] = CRGB(abs(ch1b-127)/2, abs(ch2b-127)/2, ch3b);
+    Serial.println(map(ch1b, 0, 255, 0, 180));
+    tServo.write(90);
+    cServo.write(90);
+    sServo.write(90);
   }
   FastLED.show();
 }
